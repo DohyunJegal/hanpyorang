@@ -9,8 +9,8 @@ _NOISE_RE = re.compile(
     r'|\.pdf\s+\d+\s+\d{4}-\d{2}-\d{2}'
 )
 
-# 기호 번호
-_NUM_RE = re.compile(r'^\d{1,2}(-[가-힣])?$')
+# 기호 번호 ("1-가", "1 - 가", "2-나", "5" 등)
+_NUM_RE = re.compile(r'^\d{1,2}\s*(-\s*[가-힣])?$')
 # 선거명 패턴 (~선거)
 _TITLE_RE = re.compile(r'^[가-힣]{2,}선거$')
 # 선거구 패턴 (~선거구)
@@ -80,7 +80,7 @@ def _parse_lines(lines: list) -> dict:
         if i not in district_indices and not _FOOTER_NOISE_RE.search(t)
     ]
 
-    numbers = [lines[i] for i in num_indices]  # str 유지 ('2-가' 등)
+    numbers = [re.sub(r'\s+', '', lines[i]) for i in num_indices]  # "1 - 가" → "1-가"
 
     parties: list = []
     names: list = []

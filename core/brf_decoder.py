@@ -314,12 +314,14 @@ def decode(brf: str) -> str:
         for length in range(min(6, len(cells) - i), 0, -1):
             key = tuple(cells[i:i + length])
             if key in g2_rules:
-                # 1셀 G2 수축 + 다음 셀이 중성 → 초성으로 처리
+                # G2 수축이 초성(+모음) 패턴이면 자모 우선
                 if length == 1 and cell in _INITIAL_SINGLE:
                     nxt = cells[i + 1] if i + 1 < len(cells) else frozenset()
                     nxt2 = cells[i + 2] if i + 2 < len(cells) else frozenset()
                     if nxt in _VOWEL_SINGLE or (nxt, nxt2) in _VOWEL_MULTI:
-                        break  # G2 스킵 → 자모 폴백
+                        break
+                if length == 2 and key[0] in _INITIAL_SINGLE and key[1] in _VOWEL_SINGLE:
+                    break
                 result.append(g2_rules[key])
                 i += length
                 matched = True

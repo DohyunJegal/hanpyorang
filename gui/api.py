@@ -205,10 +205,12 @@ class Api:
 
     # 내부 헬퍼
     def _get_layout(self, name):
+        if not name or name == _DEFAULT_LAYOUT_NAME:
+            return None  # format_brf가 make_default_rows로 후보자 수에 맞게 생성
         if not os.path.isfile(_LAYOUT_INI):
-            return None  # format_brf가 make_default_rows로 처리
+            return None
         layouts = self._load_all_layouts()
-        rows = layouts.get(name) or layouts.get(_DEFAULT_LAYOUT_NAME)
+        rows = layouts.get(name)
         return {'rows': rows} if rows else None
 
     def _load_all_layouts(self) -> dict[str, list[str]]:
