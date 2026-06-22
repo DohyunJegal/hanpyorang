@@ -63,6 +63,26 @@ def _make_filename(title: str, district: str) -> str:
 
 
 class Api:
+    # 드래그 드롭 임시 저장
+    def save_temp_pdf(self, name, base64_data):
+        import base64, tempfile
+        try:
+            data = base64.b64decode(base64_data)
+            path = os.path.join(tempfile.gettempdir(), name)
+            with open(path, 'wb') as f:
+                f.write(data)
+            return {'path': path}
+        except Exception as e:
+            return {'error': str(e)}
+
+    def delete_temp_pdf(self, path):
+        import tempfile
+        try:
+            if path and os.path.dirname(os.path.abspath(path)) == tempfile.gettempdir():
+                os.remove(path)
+        except Exception:
+            pass
+
     # 파일 다이얼로그
     def open_file_dialog(self):
         import webview

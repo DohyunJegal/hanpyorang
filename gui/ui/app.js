@@ -66,6 +66,7 @@ function setSingleFile(path) {
 }
 function singleClearFile(e) {
   e.stopPropagation();
+  if (singlePath) call('delete_temp_pdf', singlePath);
   singlePath = null;
   document.getElementById('singleDropContent').hidden = false;
   document.getElementById('singleFileBadge').hidden = true;
@@ -137,7 +138,15 @@ dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
 dz.addEventListener('drop', e => {
   e.preventDefault(); dz.classList.remove('drag-over');
   const f = e.dataTransfer.files[0];
-  if (f?.name.endsWith('.pdf')) setSingleFile(f.path || f.name);
+  if (!f?.name.endsWith('.pdf')) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const base64 = reader.result.split(',')[1];
+    const res = await call('save_temp_pdf', f.name, base64);
+    if (res?.path) setSingleFile(res.path);
+    else toast('파일 읽기 실패', 'error');
+  };
+  reader.readAsDataURL(f);
 });
 
 
