@@ -462,3 +462,6 @@ $RECYCLE.BIN/
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm,windows,macos,pycharm+all,pycharm+iml
 
 /sample
+node_modules
+package.json
+package-lock.json

@@ -106,11 +106,12 @@ def main() -> None:
         {'number': _brf_number(c['number']), 'name_brf': to_braille(c['name'])}
         for c in ballot['candidates']
     ]
-    brf_footer = [to_braille(f) for f in ballot['footer']]
+    from core.brf_formatter import _FOOTER_LINES
+    brf_footer = [to_braille(f) for f in _FOOTER_LINES]
 
     # 3. BRF 레이아웃 적용
     print('BRF 레이아웃 적용 중...')
-    content = format_brf(brf_title, brf_district, brf_cands, brf_footer)
+    content = format_brf(brf_title, brf_district, brf_cands, brf_footer, layout=None)
 
     # 4. 파일 저장
     fname = _make_filename(ballot['title'], ballot['district'])

@@ -39,6 +39,19 @@ _lib.lou_translateString.argtypes = [
     ctypes.c_int,                      # mode
 ]
 
+# lou_backTranslateString — widechar = uint32
+_lib.lou_backTranslateString.restype = ctypes.c_int
+_lib.lou_backTranslateString.argtypes = [
+    ctypes.c_char_p,                   # tableList
+    ctypes.POINTER(ctypes.c_uint32),   # inbuf  (widechar*)
+    ctypes.POINTER(ctypes.c_int),      # inlen
+    ctypes.POINTER(ctypes.c_uint32),   # outbuf (widechar*)
+    ctypes.POINTER(ctypes.c_int),      # outlen
+    ctypes.c_char_p,                   # typeform
+    ctypes.c_char_p,                   # spacing
+    ctypes.c_int,                      # mode
+]
+
 # lou_free() -> void
 _lib.lou_free.restype = None
 _lib.lou_free.argtypes = []
@@ -69,6 +82,35 @@ def _str_to_widechar(text: str) -> 'ctypes.Array':
 def _widechar_to_str(buf, length: int) -> str:
     """uint32 배열 → Python str"""
     return ''.join(chr(buf[i]) for i in range(length))
+
+
+def backTranslateString(tables, inbuf: str, mode: int = 0) -> str:
+    if not inbuf:
+        return ''
+
+    table_bytes = _table_list(tables)
+    in_arr = _str_to_widechar(inbuf)
+    in_len = ctypes.c_int(len(inbuf))
+
+    out_arr = (ctypes.c_uint32 * _BUF_SIZE)()
+    out_len = ctypes.c_int(_BUF_SIZE)
+
+    ret = _lib.lou_backTranslateString(
+        table_bytes,
+        in_arr,
+        ctypes.byref(in_len),
+        out_arr,
+        ctypes.byref(out_len),
+        None,
+        None,
+        mode,
+    )
+    _lib.lou_free()
+
+    if ret == 0:
+        raise RuntimeError(f'liblouis 역번역 실패: {inbuf!r}')
+
+    return _widechar_to_str(out_arr, out_len.value)
 
 
 def translateString(tables, inbuf: str, mode: int = 0) -> str:
