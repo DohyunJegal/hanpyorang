@@ -432,9 +432,9 @@ function makePartyRow(full = '', abbr = '') {
   const row = document.createElement('div');
   row.className = 'grid grid-cols-[1fr_24px_1fr_36px] gap-2 items-center';
   row.innerHTML = `
-    <input class="field-input" placeholder="더불어민주당" value="${esc(full)}">
+    <input class="field-input" value="${esc(full)}">
     <span class="text-center text-slate-400">→</span>
-    <input class="field-input" placeholder="민주당" value="${esc(abbr)}">
+    <input class="field-input" value="${esc(abbr)}">
     <button onclick="this.closest('.grid').remove()" class="ghost-btn" style="padding:5px 8px;">×</button>
   `;
   return row;

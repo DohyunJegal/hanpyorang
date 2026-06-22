@@ -10,13 +10,23 @@ import ctypes
 import os
 import sys
 
-_dir = os.path.dirname(os.path.abspath(__file__))
+if getattr(sys, 'frozen', False):
+    _dir = sys._MEIPASS
+else:
+    _dir = os.path.dirname(os.path.abspath(__file__))
 _dll_path = os.path.join(_dir, 'liblouis.dll')
 
 if sys.platform == 'win32' and os.path.isdir(_dir):
     os.add_dll_directory(_dir)
 
 _lib = ctypes.CDLL(_dll_path)
+
+# 테이블 경로 설정 (frozen 빌드에서는 _MEIPASS/lib/tables)
+_tables_dir = os.path.join(_dir, 'lib', 'tables') if getattr(sys, 'frozen', False) else os.path.join(_dir, 'tables')
+if os.path.isdir(_tables_dir):
+    _lib.lou_setDataPath.restype = None
+    _lib.lou_setDataPath.argtypes = [ctypes.c_char_p]
+    _lib.lou_setDataPath(_tables_dir.encode('utf-8'))
 
 # lou_version() -> const char*
 _lib.lou_version.restype = ctypes.c_char_p

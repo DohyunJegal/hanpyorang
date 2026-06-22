@@ -4,17 +4,22 @@ block_cipher = None
 
 a = Analysis(
     ['gui.py'],
-    pathex=['.'],
+    pathex=['.', 'lib'],   # lib/louis.py를 모듈로 인식
     binaries=[
-        ('lib/liblouis.dll', 'lib'),
+        ('lib/liblouis.dll', '.'),
     ],
     datas=[
-        ('lib/tables',  'lib/tables'),
-        ('gui/ui',      'gui/ui'),
-        ('core',        'core'),
-        ('gui',         'gui'),
+        ('lib/tables', 'lib/tables'),
+        ('gui/ui',     'gui/ui'),
     ],
     hiddenimports=[
+        'louis',
+        'core',
+        'core.pdf_extractor',
+        'core.braille_converter',
+        'core.brf_formatter',
+        'core.brf_decoder',
+        'gui.api',
         'webview',
         'webview.platforms.winforms',
         'clr',
@@ -43,6 +48,7 @@ exe = EXE(
     strip=False,
     upx=True,
     console=False,
+    icon='assets/icon.ico',
     disable_windowed_traceback=False,
     target_arch=None,
     codesign_identity=None,
