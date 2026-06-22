@@ -69,3 +69,7 @@ pdf2brf/
 ## 라이선스
 
 MIT
+
+## 크레딧
+
+아이콘 제작자: [Freepik](https://www.flaticon.com/authors/freepik) - [Flaticon](https://www.flaticon.com/)
