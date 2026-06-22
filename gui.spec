@@ -1,17 +1,23 @@
 # -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs
 
 block_cipher = None
 
+pythonnet_datas = collect_data_files('pythonnet')
+pythonnet_bins = collect_dynamic_libs('pythonnet')
+clr_loader_datas = collect_data_files('clr_loader')
+clr_loader_bins = collect_dynamic_libs('clr_loader')
+
 a = Analysis(
     ['gui.py'],
-    pathex=['.', 'lib'],   # lib/louis.py를 모듈로 인식
+    pathex=['.', 'lib'],
     binaries=[
         ('lib/liblouis.dll', '.'),
-    ],
+    ] + pythonnet_bins + clr_loader_bins,
     datas=[
         ('lib/tables', 'lib/tables'),
         ('gui/ui',     'gui/ui'),
-    ],
+    ] + pythonnet_datas + clr_loader_datas,
     hiddenimports=[
         'louis',
         'core',
