@@ -1,4 +1,4 @@
-# pdf2brf
+# 한표랑
 
 투표용지 PDF를 시각장애인용 BRF 점자 파일로 변환하는 도구입니다.
 
@@ -26,13 +26,13 @@ pip install pyinstaller
 pyinstaller gui.spec
 ```
 
-결과물은 `dist/pdf2brf/` 폴더에 생성됩니다.
+결과물은 `dist/한표랑/` 폴더에 생성됩니다.
 
 ### 빌드 후 배포
 
-`pdf2brf.exe`와 `_internal/` 폴더가 `dist/pdf2brf/` 내부에 생성됩니다.
+`한표랑.exe`와 `_internal/` 폴더가 `dist/한표랑/` 내부에 생성됩니다.
 
-배포 시 `_internal/` 폴더와 `pdf2brf.exe`를 함께 배포해주세요.
+배포 시 `_internal/` 폴더와 `한표랑.exe`를 함께 배포해주세요.
 
 > Windows 10 이상에서 실행을 권장합니다. Edge WebView2 런타임이 필요할 수 있습니다.
 
@@ -48,7 +48,7 @@ pyinstaller gui.spec
 ## 프로젝트 구조
 
 ```
-pdf2brf/
+hanpyorang/
 ├── gui.py              # GUI 진입점
 ├── gui.spec            # PyInstaller 빌드 설정
 ├── gui/
@@ -63,7 +63,7 @@ pdf2brf/
 │   ├── louis.py        # liblouis ctypes 바인딩
 │   ├── liblouis.dll    # liblouis 라이브러리
 │   └── tables/         # 점자 변환 테이블
-└── config/             # 레이아웃 및 정당 이름 설정값
+└── 설정/               # 레이아웃 및 정당 이름 설정값
 ```
 
 ## 라이선스

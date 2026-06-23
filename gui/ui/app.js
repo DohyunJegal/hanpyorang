@@ -151,7 +151,7 @@ dz.addEventListener('drop', e => {
 
 
 async function singleConvert() {
-  const dir = 'output';
+  const dir = '변환결과';
   const layoutName = document.getElementById('singleLayoutSel').value;
   const ballot = {
     title: document.getElementById('fTitle').value,
@@ -201,7 +201,7 @@ function renderBatch(statuses = {}) {
 }
 
 async function batchConvert() {
-  const dir = 'output';
+  const dir = '변환결과';
   if (!batchFiles.length) { toast('파일을 추가하세요.', 'error'); return; }
   const layoutName = document.getElementById('batchLayoutSel').value;
   const statuses = {};
@@ -301,6 +301,9 @@ function updateLayoutButtons() {
   const isExisting = validName && allLayouts.hasOwnProperty(name);
   document.getElementById('btnSaveLayout').disabled = !validName;
   document.getElementById('btnDeleteLayout').disabled = !isExisting;
+  document.querySelectorAll('#palette .palette-chip').forEach(btn => {
+    btn.classList.toggle('disabled', !validName);
+  });
 }
 
 function renderLayoutRows() {
@@ -347,6 +350,7 @@ function removeLayoutRow(idx) {
 }
 
 function paletteAdd(type) {
+  if (!curLayout) { toast('레이아웃 이름을 먼저 입력하세요.', 'error'); return; }
   const rows = [...(allLayouts[curLayout] || [])];
   if (type === '후보자') {
     const used = rows.filter(t => t.startsWith('후보자'))
@@ -369,8 +373,6 @@ function paletteAdd(type) {
 
 async function deleteLayout() {
   if (!curLayout) return;
-  const editableCount = Object.keys(allLayouts).filter(n => n !== '기본').length;
-  if (editableCount <= 1) { toast('레이아웃은 최소 1개 필요합니다.', 'error'); return; }
   if (!confirm(`'${curLayout}' 레이아웃을 삭제할까요?`)) return;
   const res = await call('delete_layout', curLayout);
   if (!res?.ok) { toast(res?.error || '삭제 실패', 'error'); return; }

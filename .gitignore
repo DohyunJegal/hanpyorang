@@ -461,9 +461,13 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm,windows,macos,pycharm+all,pycharm+iml
 
+# 예외
+!gui.spec
+
 /sample
+/변환결과
 node_modules
+
+/설정/레이아웃.ini
 package.json
 package-lock.json
-!gui.spec
-/output/

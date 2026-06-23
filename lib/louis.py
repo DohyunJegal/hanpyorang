@@ -7,8 +7,18 @@ Windows 기본 c_wchar (UTF-16, 2바이트) 를 쓰면 안 된다.
 """
 
 import ctypes
+import ctypes.wintypes
 import os
 import sys
+
+
+def _short_path(long_path: str) -> str:
+    if sys.platform != 'win32':
+        return long_path
+    buf = ctypes.create_unicode_buffer(512)
+    ret = ctypes.windll.kernel32.GetShortPathNameW(long_path, buf, 512)
+    return buf.value if ret else long_path
+
 
 if getattr(sys, 'frozen', False):
     _dir = sys._MEIPASS
@@ -26,7 +36,7 @@ _tables_dir = os.path.join(_dir, 'lib', 'tables') if getattr(sys, 'frozen', Fals
 if os.path.isdir(_tables_dir):
     _lib.lou_setDataPath.restype = None
     _lib.lou_setDataPath.argtypes = [ctypes.c_char_p]
-    _lib.lou_setDataPath(_tables_dir.encode('utf-8'))
+    _lib.lou_setDataPath(_short_path(_tables_dir).encode('utf-8'))
 
 # lou_version() -> const char*
 _lib.lou_version.restype = ctypes.c_char_p

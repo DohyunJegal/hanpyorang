@@ -1,5 +1,5 @@
 """
-pdf2brf CLI
+한표랑 CLI
 
 실행방법:
     python cli.py
@@ -30,11 +30,11 @@ def _ensure_deps() -> None:
         try:
             __import__(mod_name)
         except ImportError:
-            print(f'[pdf2brf] {pkg_name} 설치 중...', flush=True)
+            print(f'[한표랑] {pkg_name} 설치 중...', flush=True)
             subprocess.check_call(
                 [sys.executable, '-m', 'pip', 'install', pkg_name]
             )
-            print(f'[pdf2brf] {pkg_name} 설치 완료')
+            print(f'[한표랑] {pkg_name} 설치 완료')
             installed_any = True
     if installed_any:
         importlib.invalidate_caches()

@@ -219,6 +219,8 @@ textarea.field-input { resize: vertical; }
   transition: background .15s;
 }
 .palette-chip:hover { background: #dbeafe; }
+.palette-chip.disabled { opacity: 0.4; cursor: not-allowed; }
+.palette-chip.disabled:hover { background: #eff6ff; }
 
 /* 레이아웃 행 (편집기) */
 .layout-row {

@@ -1,5 +1,5 @@
 """
-pdf2brf GUI
+한표랑 GUI
 
 실행방법:
     python gui.py
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     api = Api()
     window = webview.create_window(
-        title='pdf2brf',
+        title='한표랑',
         url=resource('gui/ui/index.html'),
         js_api=api,
         width=1080,

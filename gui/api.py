@@ -27,11 +27,11 @@ from core.brf_formatter import format_brf, _FOOTER_LINES
 
 # config는 실행 파일 옆에 유지 (frozen 시 _MEIPASS는 읽기 전용 임시 폴더)
 if getattr(sys, 'frozen', False):
-    _CONFIG_DIR = os.path.join(os.path.dirname(sys.executable), 'config')
+    _CONFIG_DIR = os.path.join(os.path.dirname(sys.executable), '설정')
 else:
-    _CONFIG_DIR = os.path.join(_ROOT, 'config')
-_LAYOUT_INI = os.path.join(_CONFIG_DIR, 'layouts.ini')
-_PARTIES_INI = os.path.join(_CONFIG_DIR, 'parties.ini')
+    _CONFIG_DIR = os.path.join(_ROOT, '설정')
+_LAYOUT_INI = os.path.join(_CONFIG_DIR, '레이아웃.ini')
+_PARTIES_INI = os.path.join(_CONFIG_DIR, '정당이름.ini')
 
 _DIGIT = {'0': 'j', '1': 'a', '2': 'b', '3': 'c', '4': 'd',
           '5': 'e', '6': 'f', '7': 'g', '8': 'h', '9': 'i'}
