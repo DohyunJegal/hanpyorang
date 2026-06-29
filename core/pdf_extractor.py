@@ -97,9 +97,8 @@ def _parse_lines(lines: list) -> dict:
     for i, num in enumerate(numbers):
         party = parties[i] if i < len(parties) else ''
         name = names[i] if i < len(names) else ''
-        full_name = f'{party} {name}'.strip() if party else name
-        if full_name:
-            candidates.append({'number': num, 'name': full_name})
+        if party or name:
+            candidates.append({'number': num, 'party': party, 'name': name})
 
     return {
         'title': title,

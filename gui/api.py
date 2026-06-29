@@ -23,7 +23,7 @@ if _ROOT not in sys.path:
 
 from core.pdf_extractor import extract_ballot
 from core.braille_converter import to_braille
-from core.brf_formatter import format_brf, _FOOTER_LINES
+from core.brf_formatter import format_brf, _FOOTER_LINES, _CAND_W
 
 # config는 실행 파일 옆에 유지 (frozen 시 _MEIPASS는 읽기 전용 임시 폴더)
 if getattr(sys, 'frozen', False):
@@ -52,6 +52,32 @@ def _brf_number(num_str: str) -> str:
         else:
             result += to_braille(ch)
     return result
+
+
+def _fit_candidate(num_brf: str, party: str, name: str, abbrs: list[str]) -> str:
+    """단계별로 축약하여 후보자 칸에 맞춤"""
+    party_versions = [party] + abbrs if party else []
+    name_brf = to_braille(name)
+
+    if not party_versions:
+        text = f"{num_brf} {name_brf}"
+        return text if len(text) <= _CAND_W else text[:_CAND_W]
+
+    for p in party_versions:
+        p_brf = to_braille(p)
+        for fmt in (f"{num_brf} {p_brf} {name_brf}",
+                    f"{num_brf} {p_brf}{name_brf}",
+                    f"{num_brf}{p_brf}{name_brf}"):
+            if len(fmt) <= _CAND_W:
+                return fmt
+
+    # 그래도 안 맞으면 이름을 오른쪽에서 자름
+    shortest_brf = to_braille(party_versions[-1])
+    prefix = f"{num_brf}{shortest_brf}"
+    remaining = _CAND_W - len(prefix)
+    if remaining > 0:
+        return prefix + name_brf[:remaining]
+    return (num_brf + name_brf)[:_CAND_W]
 
 
 def _make_filename(title: str, district: str) -> str:
@@ -120,19 +146,16 @@ class Api:
             district = ballot_data.get('district', '')
             candidates = ballot_data.get('candidates', [])
 
-            processed = []
-            for c in candidates:
-                name = c['name']
-                for full, abbr in parties.items():
-                    name = name.replace(full, abbr)
-                processed.append({'number': c['number'], 'name': name})
-
             brf_title    = to_braille(title)
             brf_district = to_braille(district)
-            brf_cands    = [
-                {'number': _brf_number(c['number']), 'name_brf': to_braille(c['name'])}
-                for c in processed
-            ]
+            brf_cands    = []
+            for c in candidates:
+                num_brf = _brf_number(c['number'])
+                party = c.get('party', '')
+                name = c.get('name', '')
+                abbrs = parties.get(party, [])
+                text = _fit_candidate(num_brf, party, name, abbrs)
+                brf_cands.append({'text': text})
             brf_footer = [to_braille(f) for f in _FOOTER_LINES]
 
             content = format_brf(brf_title, brf_district, brf_cands, brf_footer, layout)
@@ -210,7 +233,7 @@ class Api:
 
     # 정당 이름
     def get_party_names(self):
-        return self._load_parties()
+        return {k: ', '.join(v) for k, v in self._load_parties().items()}
 
     def save_party_names(self, data):
         try:
@@ -254,12 +277,15 @@ class Api:
         with open(_LAYOUT_INI, 'w', encoding='utf-8') as f:
             cfg.write(f)
 
-    def _load_parties(self) -> dict[str, str]:
+    def _load_parties(self) -> dict[str, list[str]]:
         if not os.path.isfile(_PARTIES_INI):
             return {}
         try:
             cfg = configparser.ConfigParser()
             cfg.read(_PARTIES_INI, encoding='utf-8')
-            return dict(cfg['parties']) if 'parties' in cfg else {}
+            if 'parties' not in cfg:
+                return {}
+            return {k: [a.strip() for a in v.split(',') if a.strip()]
+                    for k, v in cfg['parties'].items()}
         except Exception:
             return {}

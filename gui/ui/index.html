@@ -11,30 +11,30 @@
 <body class="bg-slate-100 text-slate-900 overflow-hidden" style="height:100vh;">
 
 <!-- 토스트 -->
-<div id="toastContainer" class="fixed top-5 right-5 flex flex-col gap-2 z-50"></div>
+<div id="toastContainer" class="fixed top-5 right-5 flex flex-col gap-2 z-50" role="status" aria-live="polite"></div>
 
 <div class="flex h-screen">
 
   <!-- 사이드바 -->
-  <aside class="w-44 flex-shrink-0 bg-slate-800 flex flex-col">
-    <div class="px-5 py-5 text-white font-bold text-lg border-b border-slate-700 tracking-tight">
+  <aside class="w-44 flex-shrink-0 bg-slate-800 flex flex-col" role="navigation" aria-label="메뉴">
+    <div class="px-5 py-5 text-white font-bold text-lg border-b border-slate-700 tracking-tight" aria-hidden="true">
       한표<span class="text-blue-400">랑</span>
     </div>
-    <nav class="flex-1 p-2 flex flex-col gap-0.5">
-      <button class="tab-btn active" data-tab="single">
-        <span>📄</span> 단일 변환
+    <nav class="flex-1 p-2 flex flex-col gap-0.5" role="tablist" aria-label="기능 탭">
+      <button class="tab-btn active" data-tab="single" role="tab" aria-selected="true" aria-controls="tab-single">
+        <span aria-hidden="true">📄</span> 단일 변환
       </button>
-      <button class="tab-btn" data-tab="batch">
-        <span>📁</span> 다중 변환
+      <button class="tab-btn" data-tab="batch" role="tab" aria-selected="false" aria-controls="tab-batch">
+        <span aria-hidden="true">📁</span> 다중 변환
       </button>
-      <button class="tab-btn" data-tab="translate">
-        <span>⇄</span> 번역/역번역
+      <button class="tab-btn" data-tab="translate" role="tab" aria-selected="false" aria-controls="tab-translate">
+        <span aria-hidden="true">⇄</span> 번역/역번역
       </button>
-      <button class="tab-btn" data-tab="layout">
-        <span>⚙</span> 레이아웃 수정
+      <button class="tab-btn" data-tab="layout" role="tab" aria-selected="false" aria-controls="tab-layout">
+        <span aria-hidden="true">⚙</span> 레이아웃 수정
       </button>
-      <button class="tab-btn" data-tab="parties">
-        <span>✏</span> 정당 이름
+      <button class="tab-btn" data-tab="parties" role="tab" aria-selected="false" aria-controls="tab-parties">
+        <span aria-hidden="true">✏</span> 정당 이름
       </button>
     </nav>
   </aside>
@@ -42,23 +42,23 @@
   <main class="flex-1 overflow-hidden">
 
     <!-- 단일 변환 탭 -->
-    <div id="tab-single" class="tab-panel active">
+    <div id="tab-single" class="tab-panel active" role="tabpanel" aria-label="단일 변환">
       <h1 class="text-xl font-bold">단일 변환</h1>
       <p class="text-sm text-slate-500 -mt-1">PDF 파일을 BRF로 변환</p>
 
       <!-- 파일 드롭존 -->
-      <div id="singleDropZone" class="drop-zone">
+      <div id="singleDropZone" class="drop-zone" role="region" aria-label="PDF 파일 선택 영역">
         <div id="singleDropContent">
-          <div class="text-4xl mb-2">📄</div>
+          <div class="text-4xl mb-2" aria-hidden="true">📄</div>
           <p class="text-sm text-slate-500 mb-3"><strong class="text-slate-700">PDF 파일</strong>을 여기에 드래그하거나 아래 버튼을 눌러주세요.</p>
-          <button class="ghost-btn" onclick="singleSelectFile()">파일 선택</button>
+          <button class="ghost-btn" onclick="singleSelectFile()" aria-label="PDF 파일 선택">파일 선택</button>
         </div>
         <div id="singleFileBadge" hidden class="flex flex-col items-center gap-3">
           <span class="file-badge" id="singleFileName">
-            📄 <span id="singleFileNameText"></span>
-            <button onclick="singleClearFile(event)" class="ml-1 text-blue-300 hover:text-red-500 text-lg leading-none">×</button>
+            <span aria-hidden="true">📄</span> <span id="singleFileNameText"></span>
+            <button onclick="singleClearFile(event)" class="ml-1 text-blue-300 hover:text-red-500 text-lg leading-none" aria-label="선택한 파일 제거">×</button>
           </span>
-          <span id="singleReadStatus" class="text-sm text-slate-400">읽는 중...</span>
+          <span id="singleReadStatus" class="text-sm text-slate-400" role="status">읽는 중...</span>
         </div>
       </div>
 
@@ -67,11 +67,11 @@
         <div class="card flex flex-col gap-4">
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="field-label">선거명</label>
+              <label class="field-label" for="fTitle">선거명</label>
               <input type="text" id="fTitle" class="field-input" placeholder="선거명">
             </div>
             <div>
-              <label class="field-label">선거구</label>
+              <label class="field-label" for="fDistrict">선거구</label>
               <input type="text" id="fDistrict" class="field-input" placeholder="선거구">
             </div>
           </div>
@@ -79,48 +79,48 @@
           <div>
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm font-semibold text-slate-700">후보자</span>
-              <button class="ghost-btn text-xs" onclick="addCandidate()">+ 추가</button>
+              <button class="ghost-btn text-xs" onclick="addCandidate()" aria-label="후보자 추가">+ 추가</button>
             </div>
-            <div id="candList" class="flex flex-col gap-1.5"></div>
+            <div id="candList" class="flex flex-col gap-1.5" role="list" aria-label="후보자 목록"></div>
           </div>
         </div>
 
         <div class="card flex gap-3 items-end">
           <div class="flex-1">
-            <label class="field-label">레이아웃</label>
-            <select id="singleLayoutSel" class="field-input"></select>
+            <label class="field-label" for="singleLayoutSel">레이아웃</label>
+            <select id="singleLayoutSel" class="field-input" aria-label="레이아웃 선택"></select>
           </div>
-          <button id="btnConvert" class="primary-btn px-6 py-2.5 flex-shrink-0" onclick="singleConvert()">변환</button>
+          <button id="btnConvert" class="primary-btn px-6 py-2.5 flex-shrink-0" onclick="singleConvert()" aria-label="BRF로 변환">변환</button>
         </div>
       </div>
     </div>
 
     <!-- 다중 변환 탭 -->
-    <div id="tab-batch" class="tab-panel">
+    <div id="tab-batch" class="tab-panel" role="tabpanel" aria-label="다중 변환">
       <h1 class="text-xl font-bold">다중 변환</h1>
       <p class="text-sm text-slate-500 -mt-1">여러 PDF 파일을 한 번에 변환</p>
 
       <div class="card flex flex-col gap-3">
         <div class="flex gap-2">
-          <button class="ghost-btn" onclick="batchAddFiles()">📄 파일 추가</button>
-          <button class="ghost-btn" onclick="batchClear()">전체 지우기</button>
+          <button class="ghost-btn" onclick="batchAddFiles()" aria-label="PDF 파일 추가"><span aria-hidden="true">📄</span> 파일 추가</button>
+          <button class="ghost-btn" onclick="batchClear()" aria-label="파일 목록 전체 지우기">전체 지우기</button>
         </div>
-        <div id="batchFileList" class="flex flex-col gap-1.5 min-h-12">
+        <div id="batchFileList" class="flex flex-col gap-1.5 min-h-12" role="list" aria-label="변환할 파일 목록">
           <p id="batchEmpty" class="text-sm text-slate-400 text-center py-4">파일을 추가하세요.</p>
         </div>
       </div>
 
       <div class="card flex gap-3 items-end">
         <div class="flex-1">
-          <label class="field-label">레이아웃</label>
-          <select id="batchLayoutSel" class="field-input"></select>
+          <label class="field-label" for="batchLayoutSel">레이아웃</label>
+          <select id="batchLayoutSel" class="field-input" aria-label="레이아웃 선택"></select>
         </div>
-        <button id="btnBatchConvert" class="primary-btn px-6 py-2.5 flex-shrink-0" onclick="batchConvert()">전체 변환</button>
+        <button id="btnBatchConvert" class="primary-btn px-6 py-2.5 flex-shrink-0" onclick="batchConvert()" aria-label="전체 파일 BRF 변환">전체 변환</button>
       </div>
     </div>
 
     <!-- 번역/역번역 탭 -->
-    <div id="tab-translate" class="tab-panel">
+    <div id="tab-translate" class="tab-panel" role="tabpanel" aria-label="번역/역번역">
       <h1 class="text-xl font-bold">번역 / 역번역</h1>
       <p class="text-sm text-slate-500 -mt-1">한국어 - BRF 점자 ASCII 번역</p>
 
@@ -128,28 +128,28 @@
         <div class="card flex flex-col gap-2">
           <div class="flex items-center justify-between">
             <label class="field-label mb-0">한국어</label>
-            <button class="ghost-btn text-xs" onclick="clearLeft()">지우기</button>
+            <button class="ghost-btn text-xs" onclick="clearLeft()" aria-label="한국어 입력 지우기">지우기</button>
           </div>
           <textarea id="transLeft" class="field-input font-mono resize-none" rows="10"
-                    placeholder="변환할 한국어를 입력하세요..." oninput="onTransLeft()"></textarea>
+                    placeholder="변환할 한국어를 입력하세요..." oninput="onTransLeft()" aria-label="한국어 입력"></textarea>
         </div>
         <div class="flex flex-col gap-2 pt-7">
-          <button class="ghost-btn" title="→ 점자" onclick="doForward()">→</button>
-          <button class="ghost-btn" title="← 한국어" onclick="doBackward()">←</button>
+          <button class="ghost-btn" onclick="doForward()" aria-label="한국어를 점자로 변환">→</button>
+          <button class="ghost-btn" onclick="doBackward()" aria-label="점자를 한국어로 변환">←</button>
         </div>
         <div class="card flex flex-col gap-2">
           <div class="flex items-center justify-between">
             <label class="field-label mb-0">BRF 점자 ASCII</label>
-            <button class="ghost-btn text-xs" onclick="clearRight()">지우기</button>
+            <button class="ghost-btn text-xs" onclick="clearRight()" aria-label="점자 입력 지우기">지우기</button>
           </div>
           <textarea id="transRight" class="field-input font-mono resize-none" rows="10"
-                    placeholder="변환 결과가 표시됩니다..." oninput="onTransRight()"></textarea>
+                    placeholder="변환 결과가 표시됩니다..." oninput="onTransRight()" aria-label="BRF 점자 ASCII 입력"></textarea>
         </div>
       </div>
     </div>
 
     <!-- 레이아웃 수정 탭 -->
-    <div id="tab-layout" class="tab-panel">
+    <div id="tab-layout" class="tab-panel" role="tabpanel" aria-label="레이아웃 수정">
       <h1 class="text-xl font-bold">레이아웃 수정</h1>
       <p class="text-sm text-slate-500 -mt-1">출력 파일 형식 지정</p>
 
@@ -158,13 +158,35 @@
         <span class="field-label mb-0 flex-shrink-0">레이아웃</span>
         <input type="text" id="layoutNameInput" class="field-input flex-shrink-0" style="width:210px;"
                list="layoutNameList" placeholder="선택 혹은 새 이름 입력"
-               oninput="onLayoutInputChange()">
+               oninput="onLayoutInputChange()" aria-label="레이아웃 이름">
         <datalist id="layoutNameList"></datalist>
-        <button id="btnSaveLayout" class="primary-btn flex-shrink-0" onclick="saveLayout()">저장</button>
-        <button id="btnDeleteLayout" class="danger-btn flex-shrink-0" onclick="deleteLayout()">삭제</button>
+        <button id="btnSaveLayout" class="primary-btn flex-shrink-0" onclick="saveLayout()" aria-label="레이아웃 저장">저장</button>
+        <button id="btnDeleteLayout" class="danger-btn flex-shrink-0" onclick="deleteLayout()" aria-label="레이아웃 삭제">삭제</button>
       </div>
 
-      <div class="grid grid-cols-[1fr_1.4fr] gap-4">
+      <div class="flex items-center gap-2 -mb-2">
+        <button id="btnTextMode" class="ghost-btn text-xs" onclick="setLayoutMode('text')" aria-label="텍스트 편집 모드" aria-pressed="true">텍스트 모드</button>
+        <button id="btnListMode" class="ghost-btn text-xs" onclick="setLayoutMode('list')" aria-label="리스트 편집 모드" aria-pressed="false">리스트 모드</button>
+      </div>
+
+      <!-- 텍스트 모드 -->
+      <div id="layoutTextMode" class="grid grid-cols-[1fr_1.4fr] gap-4">
+        <div class="card flex flex-col gap-3">
+          <div>
+            <label class="field-label mb-1" for="layoutTextarea">행 목록</label>
+            <p class="text-xs text-slate-400 mb-2">입력 가능 요소: 공백, 선거명, 선거구, 후보자, 하단멘트<br>한 줄에 하나씩 입력해주세요.</p>
+            <textarea id="layoutTextarea" class="field-input font-mono resize-none" rows="14"
+                      oninput="onLayoutTextChange()" aria-label="레이아웃 행 목록"></textarea>
+          </div>
+        </div>
+        <div class="card flex flex-col gap-2">
+          <p class="field-label mb-0">미리보기</p>
+          <pre id="layoutPreviewText" class="text-xs font-mono bg-slate-50 border border-slate-200 rounded p-3 overflow-x-auto leading-relaxed flex-1"></pre>
+        </div>
+      </div>
+
+      <!-- 리스트 모드 -->
+      <div id="layoutListMode" class="grid grid-cols-[1fr_1.4fr] gap-4" hidden>
         <div class="card flex flex-col gap-4">
           <div>
             <p class="field-label mb-2">추가할 항목</p>
@@ -177,35 +199,33 @@
             </div>
           </div>
           <div>
-            <p class="field-label mb-2">행 순서 <span class="font-normal text-slate-400">(드래그로 순서 변경)</span></p>
+            <p class="field-label mb-2">행 순서</p>
             <div id="layoutRows" class="flex flex-col gap-1 min-h-16"></div>
           </div>
         </div>
-
-        <!-- 미리보기 -->
         <div class="card flex flex-col gap-2">
           <p class="field-label mb-0">미리보기</p>
-          <pre id="layoutPreview" class="text-xs font-mono bg-slate-50 border border-slate-200 rounded p-3 overflow-x-auto leading-relaxed flex-1"></pre>
+          <pre id="layoutPreviewList" class="text-xs font-mono bg-slate-50 border border-slate-200 rounded p-3 overflow-x-auto leading-relaxed flex-1"></pre>
         </div>
       </div>
     </div>
 
     <!-- 정당 이름 탭 -->
-    <div id="tab-parties" class="tab-panel">
+    <div id="tab-parties" class="tab-panel" role="tabpanel" aria-label="정당 이름">
       <h1 class="text-xl font-bold">정당 이름 수정</h1>
-      <p class="text-sm text-slate-500 -mt-1">정당 이름 자동 변경</p>
+      <p class="text-sm text-slate-500 -mt-1">정당 이름 단계별 단축</p>
 
       <div class="card flex flex-col gap-3">
         <div class="grid grid-cols-[1fr_24px_1fr_36px] gap-2 text-xs font-semibold text-slate-400 px-1">
           <span>PDF에 표시된 이름</span>
           <span></span>
-          <span>변경할 이름</span>
+          <span>단축 이름 (쉼표로 구분)</span>
         </div>
-        <div id="partyList" class="flex flex-col gap-2"></div>
+        <div id="partyList" class="flex flex-col gap-2" role="list" aria-label="정당 이름 목록"></div>
         <div class="flex gap-2 pt-1">
-          <button class="ghost-btn" onclick="addPartyRow()">+ 항목 추가</button>
+          <button class="ghost-btn" onclick="addPartyRow()" aria-label="정당 항목 추가">+ 항목 추가</button>
           <div class="flex-1"></div>
-          <button class="primary-btn" onclick="saveParties()">저장</button>
+          <button class="primary-btn" onclick="saveParties()" aria-label="정당 이름 저장">저장</button>
         </div>
       </div>
     </div>

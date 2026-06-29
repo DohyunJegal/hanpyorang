@@ -37,7 +37,7 @@ if __name__ == '__main__':
         title='한표랑',
         url=resource('gui/ui/index.html'),
         js_api=api,
-        width=1080,
+        width=1280,
         height=720,
         min_size=(860, 560),
         background_color='#f0f4f8',

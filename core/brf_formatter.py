@@ -42,7 +42,7 @@ def format_brf(
         elif token == '선거명':
             lines.append(_center(title))
         elif token == '선거구':
-            lines.append(_center(district))
+            lines.append(_center(district) if district else '')
         elif token == '하단멘트':
             for ft in footer_braille:
                 lines.append(_center(ft))
@@ -50,13 +50,13 @@ def format_brf(
             n = _parse_n(token, '후보자')
             if n is not None and 1 <= n <= len(candidates):
                 c = candidates[n - 1]
-                lines.append(_right(f"{c['number']} {c['name_brf']}"))
+                lines.append(_right(c['text']))
             else:
                 lines.append('')
         else:
             lines.append('')
 
-    return '\r\n'.join(lines) + '\r\n'
+    return '\r\n'.join(l.rstrip() for l in lines) + '\r\n'
 
 
 def _parse_n(token: str, prefix: str) -> int | None:

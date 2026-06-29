@@ -14,9 +14,10 @@ async function call(method, ...args) {
 /* 탭 전환 */
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
     document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
     document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
     if (btn.dataset.tab === 'layout') initLayoutTab();
     if (btn.dataset.tab === 'parties') initPartiesTab();
@@ -94,17 +95,22 @@ async function singleReadPdf() {
 function renderCands(cands) {
   const list = document.getElementById('candList');
   list.innerHTML = '';
-  cands.forEach((c, i) => list.appendChild(makeCandRow(c.number, c.name, i)));
+  cands.forEach((c, i) => list.appendChild(makeCandRow(c.number, c.party || '', c.name, i)));
 }
-function makeCandRow(num, name, idx) {
+function makeCandRow(num, party, name, idx) {
+  const n = idx + 1;
   const row = document.createElement('div');
   row.className = 'cand-row'; row.draggable = true; row.dataset.idx = idx;
+  row.setAttribute('role', 'listitem');
+  row.setAttribute('aria-label', `후보자 ${n}`);
   row.innerHTML = `
-    <span class="drag-handle">⠿</span>
-    <input class="field-input" style="width:60px;" value="${esc(num)}" placeholder="번호">
-    <input class="field-input flex-1" value="${esc(name)}" placeholder="이름">
+    <span class="drag-handle" aria-hidden="true">⠿</span>
+    <input class="field-input" style="width:60px;" value="${esc(num)}" placeholder="번호" aria-label="후보자 ${n} 번호">
+    <input class="field-input" style="width:120px;" value="${esc(party)}" placeholder="정당" aria-label="후보자 ${n} 정당">
+    <input class="field-input flex-1" value="${esc(name)}" placeholder="이름" aria-label="후보자 ${n} 이름">
     <button onclick="this.closest('.cand-row').remove()"
-            class="text-slate-300 hover:text-red-500 text-xl leading-none px-1 border-none bg-transparent cursor-pointer">×</button>
+            class="text-slate-300 hover:text-red-500 text-xl leading-none px-1 border-none bg-transparent cursor-pointer"
+            aria-label="후보자 ${n} 삭제">×</button>
   `;
   row.addEventListener('dragstart', e => { candDragIdx = idx; row.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
   row.addEventListener('dragend', () => { row.classList.remove('dragging'); document.querySelectorAll('.cand-row').forEach(r=>r.classList.remove('drag-target')); });
@@ -119,11 +125,12 @@ function makeCandRow(num, name, idx) {
   });
   return row;
 }
-function addCandidate() { renderCands([...getCands(), { number: '', name: '' }]); }
+function addCandidate() { renderCands([...getCands(), { number: '', party: '', name: '' }]); }
 function getCands() {
   return [...document.querySelectorAll('#candList .cand-row')].map(r => ({
     number: r.querySelectorAll('input')[0].value,
-    name:   r.querySelectorAll('input')[1].value,
+    party:  r.querySelectorAll('input')[1].value,
+    name:   r.querySelectorAll('input')[2].value,
   }));
 }
 
@@ -248,6 +255,49 @@ function clearRight() { document.getElementById('transRight').value = ''; docume
 let allLayouts = {};
 let curLayout  = '';
 let rowDragIdx = null;
+let layoutMode = 'text';
+
+const VALID_TOKENS = ['공백', '선거명', '선거구', '하단멘트', '후보자'];
+function isValidToken(t) { return VALID_TOKENS.includes(t) || /^후보자\d+$/.test(t); }
+
+function setLayoutMode(mode) {
+  layoutMode = mode;
+  document.getElementById('layoutTextMode').hidden = mode !== 'text';
+  document.getElementById('layoutListMode').hidden = mode !== 'list';
+  document.getElementById('btnTextMode').classList.toggle('active', mode === 'text');
+  document.getElementById('btnListMode').classList.toggle('active', mode === 'list');
+  document.getElementById('btnTextMode').setAttribute('aria-pressed', mode === 'text');
+  document.getElementById('btnListMode').setAttribute('aria-pressed', mode === 'list');
+  syncToMode();
+}
+
+function syncToMode() {
+  const rows = allLayouts[curLayout] || [];
+  if (layoutMode === 'text') {
+    document.getElementById('layoutTextarea').value = rows.join('\n');
+    updatePreview(rows, 'layoutPreviewText');
+  } else {
+    renderLayoutRows();
+  }
+}
+
+function numberCandidates(rows) {
+  let n = 0;
+  return rows.map(t => t === '후보자' ? `후보자${++n}` : t);
+}
+
+function onLayoutTextChange() {
+  let rows = document.getElementById('layoutTextarea').value
+    .split('\n').map(s => s.trim()).filter(s => s);
+  const invalid = rows.filter(t => !isValidToken(t));
+  if (invalid.length) {
+    document.getElementById('layoutPreviewText').textContent = `잘못된 항목: ${invalid.join(', ')}\n\n사용 가능: 공백, 선거명, 선거구, 후보자, 하단멘트`;
+    return;
+  }
+  rows = numberCandidates(rows);
+  if (curLayout) allLayouts[curLayout] = rows;
+  updatePreview(rows, 'layoutPreviewText');
+}
 
 // 토큰 → 표시 정보
 const TOKEN_INFO = {
@@ -284,14 +334,14 @@ async function initLayoutTab() {
   const input = document.getElementById('layoutNameInput');
   input.value = curLayout || '';
   updateLayoutButtons();
-  renderLayoutRows();
+  syncToMode();
 }
 
 function onLayoutInputChange() {
   const val = document.getElementById('layoutNameInput').value.trim();
   const prev = curLayout;
   curLayout = (val && val !== '기본') ? val : null;
-  if (curLayout !== prev) renderLayoutRows();
+  if (curLayout !== prev) syncToMode();
   updateLayoutButtons();
 }
 
@@ -310,22 +360,37 @@ function renderLayoutRows() {
   const rows = allLayouts[curLayout] || [];
   const container = document.getElementById('layoutRows');
   container.innerHTML = '';
-  rows.forEach((token, i) => container.appendChild(makeLayoutRow(token, i)));
-  updatePreview(rows);
+  rows.forEach((token, i) => container.appendChild(makeLayoutRow(token, i, rows.length)));
+  updatePreview(rows, 'layoutPreviewList');
 }
 
-function makeLayoutRow(token, idx) {
+function moveLayoutRow(fromIdx, dir) {
+  const rows = [...(allLayouts[curLayout] || [])];
+  const toIdx = fromIdx + dir;
+  if (toIdx < 0 || toIdx >= rows.length) return;
+  [rows[fromIdx], rows[toIdx]] = [rows[toIdx], rows[fromIdx]];
+  allLayouts[curLayout] = rows;
+  renderLayoutRows();
+}
+
+function makeLayoutRow(token, idx, total) {
   const info = getTokenInfo(token);
   const row = document.createElement('div');
   row.className = 'layout-row'; row.draggable = true; row.dataset.idx = idx;
   row.innerHTML = `
-    <span class="drag-handle text-slate-300 text-sm cursor-grab">⠿</span>
+    <div class="layout-row-arrows">
+      <button onclick="moveLayoutRow(${idx},-1)" ${idx === 0 ? 'disabled' : ''}
+              aria-label="${info.label} 위로 이동">▲</button>
+      <button onclick="moveLayoutRow(${idx},1)" ${idx === total - 1 ? 'disabled' : ''}
+              aria-label="${info.label} 아래로 이동">▼</button>
+    </div>
     <span class="layout-row-label">${info.label}</span>
     <div class="layout-row-visual">
       <div class="layout-row-bar ${info.barClass}" style="left:${info.left};width:${info.width};">${info.barText}</div>
     </div>
     <button onclick="removeLayoutRow(${idx})"
-            class="text-slate-300 hover:text-red-500 text-lg leading-none px-1 border-none bg-transparent cursor-pointer flex-shrink-0">×</button>
+            class="layout-row-delete text-slate-300 hover:text-red-500 text-lg leading-none px-1 border-none bg-transparent cursor-pointer flex-shrink-0"
+            aria-label="${info.label} 삭제">×</button>
   `;
   row.addEventListener('dragstart', e => { rowDragIdx = idx; row.classList.add('dragging'); e.dataTransfer.effectAllowed='move'; });
   row.addEventListener('dragend', () => { row.classList.remove('dragging'); document.querySelectorAll('.layout-row').forEach(r=>r.classList.remove('drag-target')); });
@@ -346,7 +411,7 @@ function removeLayoutRow(idx) {
   const rows = [...(allLayouts[curLayout] || [])];
   rows.splice(idx, 1);
   allLayouts[curLayout] = rows;
-  renderLayoutRows();
+  syncToMode();
 }
 
 function paletteAdd(type) {
@@ -367,7 +432,7 @@ function paletteAdd(type) {
     rows.push(type); // 공백
   }
   allLayouts[curLayout] = rows;
-  renderLayoutRows();
+  syncToMode();
 }
 
 
@@ -386,6 +451,13 @@ async function saveLayout() {
   const name = document.getElementById('layoutNameInput').value.trim();
   if (!name || name === '기본') return;
   const wasNew = !(name in allLayouts) || !await call('get_layout', name);
+  if (layoutMode === 'text') {
+    let parsed = document.getElementById('layoutTextarea').value
+      .split('\n').map(s => s.trim()).filter(s => s);
+    const invalid = parsed.filter(t => !isValidToken(t));
+    if (invalid.length) { toast(`잘못된 항목: ${invalid.join(', ')}`, 'error'); return; }
+    allLayouts[name] = numberCandidates(parsed);
+  }
   const rows = allLayouts[name] || [];
   const res = await call('save_layout', name, rows);
   if (!res?.ok) { toast(res?.error || '저장 실패', 'error'); return; }
@@ -403,7 +475,7 @@ async function saveLayout() {
   toast(wasNew ? '새 레이아웃을 저장했습니다.' : '저장했습니다.', 'success');
 }
 
-function updatePreview(rows) {
+function updatePreview(rows, targetId) {
   const MARGIN = 24, HEAD_W = 22, CAND_W = 18, LINE_W = 46;
   const center = t => {
     if (t.length > HEAD_W) t = t.slice(0, HEAD_W);
@@ -423,7 +495,7 @@ function updatePreview(rows) {
     if (token.startsWith('후보자')) return right(`[${token}]`);
     return '';
   });
-  document.getElementById('layoutPreview').textContent =
+  document.getElementById(targetId).textContent =
     `눈금: ${ruler}\n` + lines.map((l, i) => `${String(i+1).padStart(2)}: ${l}|`).join('\n');
 }
 
@@ -442,11 +514,12 @@ function renderParties(data) {
 function makePartyRow(full = '', abbr = '') {
   const row = document.createElement('div');
   row.className = 'grid grid-cols-[1fr_24px_1fr_36px] gap-2 items-center';
+  row.setAttribute('role', 'listitem');
   row.innerHTML = `
-    <input class="field-input" value="${esc(full)}">
-    <span class="text-center text-slate-400">→</span>
-    <input class="field-input" value="${esc(abbr)}">
-    <button onclick="this.closest('.grid').remove()" class="ghost-btn" style="padding:5px 8px;">×</button>
+    <input class="field-input" value="${esc(full)}" aria-label="정당 원래 이름">
+    <span class="text-center text-slate-400" aria-hidden="true">→</span>
+    <input class="field-input" value="${esc(abbr)}" aria-label="정당 단축 이름">
+    <button onclick="this.closest('.grid').remove()" class="ghost-btn" style="padding:5px 8px;" aria-label="정당 항목 삭제">×</button>
   `;
   return row;
 }
